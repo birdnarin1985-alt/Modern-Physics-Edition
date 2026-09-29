@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THE QUANTUM GRASP // SHOWCASE APP</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --void-bg: #020617;
+            --cyan-glow: #06b6d4;
+            --red-tension: #ef4444;
+            --glass-bg: rgba(15, 23, 42, 0.75);
+            --glass-border: rgba(6, 182, 212, 0.3);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--void-bg);
+            color: #f8fafc;
+            font-family: 'Sarabun', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #universe-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 1;
+        }
+
+        /* --- SHOWCASE NAVIGATION (MODULE SELECTOR) --- */
+        #showcase-nav {
+            position: absolute;
+            top: 20px; left: 50%;
+            transform: translateX(-50%);
+            z-index: 20;
+            display: flex;
+            gap: 8px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(16px);
+            padding: 8px;
+            border-radius: 30px;
+            border: 1px solid var(--glass-border);
+            max-width: 95vw;
+            overflow-x: auto;
+        }
+
+        .nav-btn {
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .nav-btn.active, .nav-btn:hover {
+            background: var(--cyan-glow);
+            color: var(--void-bg);
+            font-weight: 700;
+            box-shadow: 0 0 15px rgba(6, 182, 212, 0.4);
+        }
+
+        /* --- WISDOM HUD (BOTTOM PANEL) --- */
+        #wisdom-hud {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            margin: 20px;
+            padding: 24px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
+        }
+
+        @media (min-width: 768px) {
+            #wisdom-hud {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                margin: 40px;
+            }
+        }
+
+        .hud-content { flex: 1; }
+        
+        .state-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.8rem;
+            letter-spacing: 2px;
+            color: var(--cyan-glow);
+            margin-bottom: 6px;
+        }
+
+        .dharma-text {
+            font-size: 1rem;
+            line-height: 1.5;
+            font-weight: 300;
+        }
+
+        .math-eq {
+            font-family: 'Playfair Display', serif;
+            font-size: 1rem;
+            color: #a855f7;
+            margin-top: 4px;
+        }
+
+        .hud-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-action {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid var(--cyan-glow);
+            color: var(--cyan-glow);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .btn-action:hover {
+            background: var(--cyan-glow);
+            color: var(--void-bg);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Showcase Navigation -->
+    <div id="showcase-nav">
+        <button class="nav-btn active" onclick="switchModule(0)">01. ขันธ์ 5 & อุปาทาน</button>
+        <button class="nav-btn" onclick="switchModule(1)">02. พระนิพพาน & ปล่อยวาง</button>
+        <button class="nav-btn" onclick="switchModule(2)">03. กฎแห่งกรรม & ตาข่าย</button>
+        <button class="nav-btn" onclick="switchModule(3)">04. ตัดขันธ์ 5 (ยามป่วย)</button>
+        <button class="nav-btn" onclick="switchModule(4)">05. พรหมวิหาร 4</button>
+    </div>
+
+    <!-- Canvas Realm -->
+    <canvas id="universe-canvas"></canvas>
+    
+    <!-- Wisdom HUD -->
+    <div id="wisdom-hud">
+        <div class="hud-content">
+            <div id="ui-state" class="state-label">MODULE 01 // อุปาทานในขันธ์ 5</div>
+            <div id="ui-text" class="dharma-text">ขันธ์ 5 โดยตัวมันเองไม่ใช่ความทุกข์ เมื่อปลายนิ้วสัมผัส (ผัสสะ) จิตเกิดการยึดมั่น เส้นกรรมถูกดึงตึงเป็นเส้นตรงสีแดงชาด</div>
+            <div id="ui-math" class="math-eq">F = -k(x - x₀) // Hooke's Law of Suffering</div>
+        </div>
+        <div class="hud-actions">
+            <button class="btn-action" onclick="resetUniverse()">รีเซ็ตสภาวะจิต</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('universe-canvas');
+        const ctx = canvas.getContext('2d');
+        let w, h;
+        
+        const nodes = [];
+        const numNodes = 3000; 
+        const connectionDistance = 65;
+        let currentModule = 0;
+        
+        let observer = { x: -1000, y: -1000, active: false, radius: 140 };
+
+        const moduleData = [
+            {
+                title: "MODULE 01 // อุปาทานในขันธ์ 5",
+                text: "ขันธ์ 5 โดยตัวมันเองไม่ใช่ความทุกข์ เมื่อปลายนิ้วสัมผัส (ผัสสะ) จิตเกิดการยึดมั่น เส้นกรรมถูกดึงตึงเป็นเส้นตรงสีแดงชาด",
+                math: "F = -k(x - x₀) // Hooke's Law of Suffering"
+            },
+            {
+                title: "MODULE 02 // อารมณ์พระนิพพาน",
+                text: "การปฏิบัติเพื่อเข้าถึงพระนิพพาน คือการปล่อยวางภาระและความยึดติด ความเครียดคูลดาวน์กลับมาเป็นสีฟ้าครามใสบริสุทธิ์",
+                math: "Entropy = -Σ p_i ln(p_i) // Relaxation State"
+            },
+            {
+                title: "MODULE 03 // กฎแห่งกรรม (ปฏิจจสมุปบาท)",
+                text: "สรรพสัตว์เกี่ยวเนื่องกันด้วยตาข่ายแห่งกรรม เส้นสายพัวพันข้ามมิติ แรงสั่นสะเทือนลามไปทั่วโครงข่ายอย่างซับซ้อน",
+                math: "Quantum Entanglement & Karmic Edges"
+            },
+            {
+                title: "MODULE 04 // การตัดขันธ์ 5 (ยามป่วยไข้)",
+                text: "แยกแยะระหว่างจิตผู้รู้กับร่างกาย ธาตุ 4 ขันธ์ 5 แตกสลายตามธรรมชาติ แต่จุดศูนย์กลางแสงสว่าง (จิต) ยังคงเป็นอิสระ",
+                math: "Anicca Shatter & Citta Core Isolation"
+            },
+            {
+                title: "MODULE 05 // กำลังพรหมวิหาร 4",
+                text: "ผู้ทรงพรหมวิหาร 4 จิตแผ่ขยายออกไปอย่างไร้ขอบเขต เกิดสนามพลังงานสีเขียวมรกตและฟ้าครามที่อบอุ่นและนุ่มนวล",
+                math: "Field Potential: V(r) = A e^(-αr)"
+            }
+        ];
+
+        function initCanvas() {
+            w = canvas.width = window.innerWidth * window.devicePixelRatio;
+            h = canvas.height = window.innerHeight * window.devicePixelRatio;
+            canvas.style.width = `${window.innerWidth}px`;
+            canvas.style.height = `${window.innerHeight}px`;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            w = window.innerWidth; h = window.innerHeight;
+            observer.radius = w < 768 ? 90 : 150;
+        }
+
+        class CetasikaNode {
+            constructor() {
+                this.resetPosition();
+                this.vx = 0; this.vy = 0;
+                this.phase = Math.random() * Math.PI * 2;
+                this.tension = 0.0;
+                this.links = [Math.floor(Math.random() * numNodes), Math.floor(Math.random() * numNodes)];
+                this.chaosX = (Math.random() - 0.5) * 120;
+                this.chaosY = (Math.random() - 0.5) * 120;
+            }
+
+            resetPosition() {
+                let angle = Math.random() * Math.PI * 2;
+                let r = Math.random() * (w * 0.25);
+                this.x = (w / 2) + Math.cos(angle) * r;
+                this.y = (h / 2) + Math.sin(angle) * r;
+            }
+
+            update(time) {
+                if (currentModule === 3 && observer.active) {
+                    // Module 4: Shatter effect
+                    this.vx += (Math.random() - 0.5) * 1.5;
+                    this.vy += (Math.random() - 0.5) * 1.5;
+                } else if (!observer.active) {
+                    if (currentModule === 4) {
+                        // Module 5: Soft expansion field
+                        let dx = this.x - (w / 2);
+                        let dy = this.y - (h / 2);
+                        let d = Math.sqrt(dx*dx + dy*dy) + 0.1;
+                        this.vx += (dx / d) * 0.1;
+                        this.vy += (dy / d) * 0.1;
+                    } else {
+                        this.x += Math.sin(time * 0.001 + this.phase) * 0.3;
+                        this.y += Math.cos(time * 0.001 + this.phase) * 0.3;
+                    }
+                    this.tension *= currentModule === 1 ? 0.92 : 0.96; // Module 2 cools down faster
+                } else {
+                    let dx = observer.x - this.x;
+                    let dy = observer.y - this.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if (dist < observer.radius * 2) {
+                        let targetDist = observer.radius;
+                        let force = (dist - targetDist) * 0.03;
+                        this.vx += (dx / dist) * force;
+                        this.vy += (dy / dist) * force;
+                        this.tension = Math.min(1, this.tension + 0.12);
+                    } else {
+                        this.tension *= 0.98;
+                    }
+                }
+
+                this.vx *= 0.90; this.vy *= 0.90;
+                this.x += this.vx; this.y += this.vy;
+
+                if (this.x < 0) this.x = w; if (this.x > w) this.x = 0;
+                if (this.y < 0) this.y = h; if (this.y > h) this.y = h;
+            }
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        for(let i=0; i<numNodes; i++) nodes.push(new CetasikaNode());
+
+        function switchModule(index) {
+            currentModule = index;
+            document.querySelectorAll('.nav-btn').forEach((btn, idx) => {
+                btn.classList.toggle('active', idx === index);
+            });
+            document.getElementById('ui-state').innerText = moduleData[index].title;
+            document.getElementById('ui-text').innerText = moduleData[index].text;
+            document.getElementById('ui-math').innerText = moduleData[index].math;
+            resetUniverse();
+        }
+
+        function resetUniverse() {
+            nodes.forEach(n => {
+                n.resetPosition();
+                n.tension = 0.0;
+                n.vx = 0; n.vy = 0;
+            });
+            observer.active = false;
+        }
+
+        canvas.addEventListener('pointerdown', (e) => { observer.x = e.clientX; observer.y = e.clientY; observer.active = true; });
+        canvas.addEventListener('pointermove', (e) => { if(observer.active) { observer.x = e.clientX; observer.y = e.clientY; } });
+        window.addEventListener('pointerup', () => { observer.active = false; });
+
+        function render(time) {
+            ctx.clearRect(0, 0, w, h);
+            nodes.forEach(n => n.update(time));
+
+            ctx.lineWidth = 0.8;
+            for(let i = 0; i < numNodes; i += 3) {
+                let nodeA = nodes[i];
+                for(let targetIdx of nodeA.links) {
+                    let nodeB = nodes[targetIdx];
+                    if(!nodeB) continue;
+
+                    let dx = nodeA.x - nodeB.x;
+                    let dy = nodeA.y - nodeB.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if(dist < connectionDistance * 2.5) {
+                        let avgTension = Math.max(nodeA.tension, nodeB.tension);
+                        
+                        let r, g, b;
+                        if (currentModule === 4) {
+                            r = 16; g = 185; b = 129; // Emerald green for Metta
+                        } else {
+                            r = 6 + (233 * avgTension);
+                            g = 182 - (114 * avgTension);
+                            b = 212 - (144 * avgTension);
+                        }
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(nodeA.x, nodeA.y);
+                        
+                        let midX = (nodeA.x + nodeB.x) / 2;
+                        let midY = (nodeA.y + nodeB.y) / 2;
+                        let curX = midX + nodeA.chaosX * (1 - avgTension);
+                        let curY = midY + nodeA.chaosY * (1 - avgTension);
+
+                        ctx.quadraticCurveTo(curX, curY, nodeB.x, nodeB.y);
+                        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${0.15 + avgTension * 0.45})`;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            nodes.forEach(n => {
+                let r = 6 + (233 * n.tension);
+                let g = 182 - (68 * n.tension);
+                let b = 212 - (144 * n.tension);
+                if (currentModule === 4) { r = 16; g = 185; b = 129; }
+                
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, 1.5 + n.tension * 2, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.75)`;
+                ctx.fill();
+            });
+
+            if (observer.active) {
+                ctx.beginPath();
+                ctx.arc(observer.x, observer.y, observer.radius, 0, Math.PI*2);
+                ctx.strokeStyle = currentModule === 3 ? 'rgba(6, 182, 212, 0.6)' : 'rgba(239, 68, 68, 0.45)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([6, 10]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+    </script>
+</body>
+</html>
