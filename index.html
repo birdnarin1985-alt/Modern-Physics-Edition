@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THE QUANTUM GRASP // MODULE 01: UPADANA</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --void-bg: #020617; /* Midnight Blue */
+            --cyan-glow: #06b6d4;
+            --red-tension: #ef4444;
+            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-border: rgba(6, 182, 212, 0.25);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--void-bg);
+            color: #f8fafc;
+            font-family: 'Sarabun', sans-serif;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        /* --- DIGITAL REALM (SCREEN) --- */
+        #universe-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 1;
+        }
+
+        #wisdom-hud {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            margin: 20px;
+            padding: 24px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.6);
+        }
+
+        @media (min-width: 768px) {
+            #wisdom-hud {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                margin: 40px;
+            }
+        }
+
+        .hud-content { flex: 1; }
+        
+        .state-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: var(--cyan-glow);
+            margin-bottom: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .dharma-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .math-eq {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.1rem;
+            color: #a855f7;
+            margin-top: 6px;
+        }
+
+        .btn-manifest {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid var(--cyan-glow);
+            color: var(--cyan-glow);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .btn-manifest:hover {
+            background: var(--cyan-glow);
+            color: var(--void-bg);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Bardo Transition (อันตรภพจำลองภาพ) */
+        #bardo-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--void-bg);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        .bardo-text {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--cyan-glow);
+            letter-spacing: 2px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; text-shadow: 0 0 10px var(--cyan-glow); }
+        }
+
+        /* --- PHYSICAL REALM (EDUCATIONAL PRINT TEXTBOOK A4) --- */
+        #print-layout { display: none; }
+
+        @media print {
+            @page { size: A4 portrait; margin: 0; }
+            
+            body { 
+                background: #fdfdfc; 
+                color: #1e293b; 
+                overflow: visible;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            #universe-canvas, #wisdom-hud, #bardo-overlay { display: none !important; }
+            
+            #print-layout {
+                display: block;
+                width: 210mm;
+            }
+
+            .a4-page {
+                width: 210mm;
+                height: 297mm;
+                padding: 20mm;
+                position: relative;
+                page-break-after: always;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+            }
+
+            .book-header {
+                border-bottom: 2px solid #020617;
+                padding-bottom: 4mm;
+                margin-bottom: 6mm;
+            }
+            .book-title {
+                font-size: 22pt;
+                font-weight: 700;
+                letter-spacing: -0.5px;
+            }
+            .book-subtitle {
+                font-size: 10pt;
+                color: #64748b;
+                margin-top: 2mm;
+            }
+
+            .print-snapshot {
+                width: 100%;
+                height: 100mm;
+                object-fit: cover;
+                border-radius: 6px;
+                border: 1px solid #cbd5e1;
+                margin-bottom: 6mm;
+            }
+
+            .section-box {
+                background: #f8fafc;
+                border-left: 4px solid #b91c1c;
+                padding: 5mm;
+                margin-bottom: 4mm;
+            }
+            .section-title {
+                font-size: 11pt;
+                font-weight: 700;
+                color: #b91c1c;
+                margin-bottom: 2mm;
+            }
+            .section-text {
+                font-size: 9.5pt;
+                line-height: 1.5;
+                text-align: justify;
+            }
+
+            .edu-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 6mm;
+                margin-top: 4mm;
+            }
+            .edu-card {
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                padding: 4mm;
+                border-radius: 4px;
+            }
+            .edu-card-title {
+                font-size: 9.5pt;
+                font-weight: 700;
+                color: #0284c7;
+                margin-bottom: 2mm;
+            }
+            .code-snippet {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 7.5pt;
+                background: #0f172a;
+                color: #38bdf8;
+                padding: 3mm;
+                border-radius: 3px;
+                overflow-x: auto;
+                white-space: pre-wrap;
+            }
+
+            .page-footer {
+                font-family: 'JetBrains Mono', monospace;
+                font-size: 8pt;
+                color: #94a3b8;
+                text-align: right;
+                border-top: 1px solid #e2e8f0;
+                padding-top: 2mm;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. The Screen Realm (Interactive Apparatus) -->
+    <canvas id="universe-canvas"></canvas>
+    
+    <div id="wisdom-hud">
+        <div class="hud-content">
+            <div id="ui-state" class="state-label">MODULE 01 // สุญญตา (THE VOID STATE)</div>
+            <div id="ui-text" class="dharma-text">ขันธ์ 5 โดยตัวมันเองไม่ใช่ความทุกข์ จิตเดิมแท้ว่างเปล่าและเป็นอิสระ เส้นกรรม (Bezier) โค้งมนพริ้วไหวอย่างไร้ความกดดัน</div>
+            <div id="ui-math" class="math-eq">Ψ(x,t) = Σ c_n φ_n(x) e^(-iE_nt/ℏ)</div>
+        </div>
+        <button class="btn-manifest" onclick="triggerManifestation()">สกัดสัจธรรมสู่ตำรา A4</button>
+    </div>
+
+    <!-- 2. Bardo Transition -->
+    <div id="bardo-overlay">
+        <div class="bardo-text">[ กำลังรวบรวมก้อนจิต 3,000 โหนด สู่คัมภีร์วิทยาทาน Module 01... ]</div>
+    </div>
+
+    <!-- 3. Physical Realm (Educational Textbook A4 - Module 01) -->
+    <div id="print-layout">
+        
+        <!-- PAGE 1: ภวังคจิต & สุญญตา -->
+        <div class="a4-page">
+            <div>
+                <div class="book-header">
+                    <div class="book-title">MODULE 01: อุปาทานในขันธ์ 5</div>
+                    <div class="book-subtitle">คัมภีร์วิทยาทานดิจิทัล: แปลงสภาวะจิตและฟิสิกส์ควอนตัมตามคำสอนหลวงพ่อฤาษีลิงดำ</div>
+                </div>
+                <img id="print-hero-img-1" class="print-snapshot" src="" alt="Void State Snapshot">
+                
+                <div class="section-box" style="border-left-color: #06b6d4;">
+                    <div class="section-title" style="color: #0891b2;">บทที่ 1: สุญญตาและความว่าง (The Void State)</div>
+                    <div class="section-text">
+                        หลวงพ่อฤาษีลิงดำสอนว่า ขันธ์ 5 (รูป เวทนา สัญญา สังขาร วิญญาณ) ทำหน้าที่ตามธรรมชาติของมัน เปรียบเสมือนอนุภาค 3,000 โหนดที่ล่องลอยอย่างอิสระ เส้นกรรมเชื่อมโยงด้วยความโค้งมน (Bezier Curves) ที่หย่อนยาน ปราศจากการยึดมั่นถือมั่น จิตจึงเบาสบายและเป็นอิสระจากความทุกข์
+                    </div>
+                </div>
+
+                <div class="edu-grid">
+                    <div class="edu-card">
+                        <div class="edu-card-title">หลักการทางคณิตศาสตร์ (Bezier Curves)</div>
+                        <div class="section-text" style="font-size: 8.5pt;">
+                            ใช้จุดควบคุม (Control Points) สุ่มดัดเส้นตรงให้โค้งมน สะท้อนอิสรภาพของพลังงานที่ไม่ถูกพันธนาการด้วยกรอบตัวตน
+                        </div>
+                    </div>
+                    <div class="edu-card">
+                        <div class="edu-card-title">โครงสร้างข้อมูล (Data Structure)</div>
+                        <div class="code-snippet">class CetasikaNode {
+  constructor() {
+    this.tension = 0.0; // ไร้ความเค้น
+    this.chaosX = randomOffset;
+  }
+}</div>
+                    </div>
+                </div>
+            </div>
+            <div class="page-footer">MODULE 01 // PAGE 01 OF 02</div>
+        </div>
+
+        <!-- PAGE 2: อุปาทาน & ทุกข์ (The Tension) -->
+        <div class="a4-page">
+            <div>
+                <div class="book-header">
+                    <div class="book-title" style="font-size: 18pt;">01.1 อุปาทาน: ต้นกำเนิดแห่งความหนักหน่วง</div>
+                    <div class="book-subtitle">เมื่อสติหลงไปยึดติด เกิดแรงบีบอัดและเส้นกรรมตึงเครียด</div>
+                </div>
+                <img id="print-hero-img-2" class="print-snapshot" src="" alt="Tension State Snapshot">
+                
+                <div class="section-box">
+                    <div class="section-title">บทที่ 2: กฎแห่งแรงสปริงและความทุกข์ (Hooke's Law)</div>
+                    <div class="section-text">
+                        เมื่อปลายนิ้วสัมผัสกาลอวกาศ (ผัสสะ) เกิดแรงดึงดูดบีบอัดก้อนจิตให้ยุบตัวลง เส้นสายที่เคยโค้งมนจะถูกกระชากด้วยกฎแรงสปริงให้ตึงเปรี๊ยะเป็นเส้นตรงสีแดงชาด นี่คือภาพสะท้อนคณิตศาสตร์ของ "อุปาทาน" ยิ่งยึดมั่นถือมั่นมาก ความเครียด (Tension) ยิ่งแผดเผาจิตใจ
+                    </div>
+                </div>
+
+                <div class="edu-grid">
+                    <div class="edu-card">
+                        <div class="edu-card-title">สมการทางฟิสิกส์ (Hooke's Law)</div>
+                        <div class="section-text" style="font-size: 8.5pt;">
+                            $F = -k(x - x_0)$ แรงตึงเครียดแปรผันตรงกับระยะห่างที่จิตถูกดึงออก 
+                            การสร้างตัวตนคือการสร้างความตึงเครียดให้แก่สเปซไทม์
+                        </div>
+                    </div>
+                    <div class="edu-card">
+                        <div class="edu-card-title">รหัสโค้ดจำลองความเค้น</div>
+                        <div class="code-snippet">let force = (dist - targetDist) * 0.03;
+this.tension = Math.min(1, 
+  this.tension + 0.12);
+let curX = LERP(chaosX, midX, tension);</div>
+                    </div>
+                </div>
+            </div>
+            <div class="page-footer">MODULE 01 // PAGE 02 OF 02</div>
+        </div>
+
+    </div>
+
+    <script>
+        const canvas = document.getElementById('universe-canvas');
+        const ctx = canvas.getContext('2d');
+        let w, h;
+        
+        // --- 3,000 NODES ARCHITECTURE ---
+        const nodes = [];
+        const numNodes = 3000; 
+        const connectionDistance = 65;
+        
+        let observer = { x: -1000, y: -1000, active: false, radius: 140 };
+
+        function initCanvas() {
+            w = canvas.width = window.innerWidth * window.devicePixelRatio;
+            h = canvas.height = window.innerHeight * window.devicePixelRatio;
+            canvas.style.width = `${window.innerWidth}px`;
+            canvas.style.height = `${window.innerHeight}px`;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            w = window.innerWidth; h = window.innerHeight;
+            observer.radius = w < 768 ? 90 : 150;
+        }
+
+        class CetasikaNode {
+            constructor() {
+                let angle = Math.random() * Math.PI * 2;
+                let r = Math.random() * (w * 0.25);
+                this.x = (w / 2) + Math.cos(angle) * r;
+                this.y = (h / 2) + Math.sin(angle) * r;
+                
+                this.vx = 0; this.vy = 0;
+                this.phase = Math.random() * Math.PI * 2;
+                this.tension = 0.0;
+                
+                this.links = [
+                    Math.floor(Math.random() * numNodes),
+                    Math.floor(Math.random() * numNodes)
+                ];
+                
+                this.chaosX = (Math.random() - 0.5) * 120;
+                this.chaosY = (Math.random() - 0.5) * 120;
+            }
+
+            update(time) {
+                if (!observer.active) {
+                    this.x += Math.sin(time * 0.001 + this.phase) * 0.3;
+                    this.y += Math.cos(time * 0.001 + this.phase) * 0.3;
+                    this.tension *= 0.96;
+                } else {
+                    let dx = observer.x - this.x;
+                    let dy = observer.y - this.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if (dist < observer.radius * 2) {
+                        let targetDist = observer.radius;
+                        let force = (dist - targetDist) * 0.03;
+                        this.vx += (dx / dist) * force;
+                        this.vy += (dy / dist) * force;
+                        this.tension = Math.min(1, this.tension + 0.12);
+                    } else {
+                        this.tension *= 0.98;
+                    }
+                }
+
+                this.vx *= 0.90; this.vy *= 0.90;
+                this.x += this.vx; this.y += this.vy;
+
+                if (this.x < 0) this.x = w; if (this.x > w) this.x = 0;
+                if (this.y < 0) this.y = h; if (this.y > h) this.y = h;
+            }
+        }
+
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        for(let i=0; i<numNodes; i++) nodes.push(new CetasikaNode());
+
+        // --- INTERACTION ---
+        function setObserver(x, y, active) {
+            observer.x = x; observer.y = y; observer.active = active;
+            const lbl = document.getElementById('ui-state');
+            const txt = document.getElementById('ui-text');
+            const eq = document.getElementById('ui-math');
+            
+            if(active) {
+                lbl.innerText = "MODULE 01 // อุปาทาน (THE OBSERVER EFFECT)";
+                lbl.style.color = "var(--red-tension)";
+                txt.innerText = "เมื่อสติหลงไปยึดติด เส้นกรรมที่เคยโค้งมนถูกกระชากด้วยแรงสปริงให้ตึงเปรี๊ยะเป็นเส้นตรงสีแดงชาด เกิดความทุกข์และภาระอันหนักหน่วง";
+                eq.innerText = "F = -k(x - x₀) // Hooke's Law of Suffering";
+            } else {
+                lbl.innerText = "MODULE 01 // สุญญตา (THE VOID STATE)";
+                lbl.style.color = "var(--cyan-glow)";
+                txt.innerText = "ขันธ์ 5 โดยตัวมันเองไม่ใช่ความทุกข์ จิตเดิมแท้ว่างเปล่าและเป็นอิสระ เส้นกรรม (Bezier) โค้งมนพริ้วไหวอย่างไร้ความกดดัน";
+                eq.innerText = "Ψ(x,t) = Σ c_n φ_n(x) e^(-iE_nt/ℏ)";
+            }
+        }
+
+        canvas.addEventListener('pointerdown', (e) => setObserver(e.clientX, e.clientY, true));
+        canvas.addEventListener('pointermove', (e) => { if(observer.active) setObserver(e.clientX, e.clientY, true); });
+        window.addEventListener('pointerup', () => setObserver(-1000, -1000, false));
+
+        // --- RENDER LOOP ---
+        function render(time) {
+            ctx.clearRect(0, 0, w, h);
+            
+            // อัปเดตสถานะโหนด
+            nodes.forEach(n => n.update(time));
+
+            // วาดสายใยกรรม (Quadratic Bezier Curves)
+            ctx.lineWidth = 0.8;
+            for(let i = 0; i < numNodes; i += 3) {
+                let nodeA = nodes[i];
+                for(let targetIdx of nodeA.links) {
+                    let nodeB = nodes[targetIdx];
+                    if(!nodeB) continue;
+
+                    let dx = nodeA.x - nodeB.x;
+                    let dy = nodeA.y - nodeB.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if(dist < connectionDistance * 2.5) {
+                        let avgTension = Math.max(nodeA.tension, nodeB.tension);
+                        
+                        let r = 6 + (233 * avgTension);
+                        let g = 182 - (114 * avgTension);
+                        let b = 212 - (144 * avgTension);
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(nodeA.x, nodeA.y);
+                        
+                        let midX = (nodeA.x + nodeB.x) / 2;
+                        let midY = (nodeA.y + nodeB.y) / 2;
+                        let curX = midX + nodeA.chaosX * (1 - avgTension);
+                        let curY = midY + nodeA.chaosY * (1 - avgTension);
+
+                        ctx.quadraticCurveTo(curX, curY, nodeB.x, nodeB.y);
+                        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${0.15 + avgTension * 0.45})`;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // วาดจุดโหนดเจตสิก
+            nodes.forEach(n => {
+                let r = 6 + (233 * n.tension);
+                let g = 182 - (68 * n.tension);
+                let b = 212 - (144 * n.tension);
+                
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, 1.5 + n.tension * 2, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.75)`;
+                ctx.fill();
+            });
+
+            // วาดวงแหวนผัสสะ
+            if (observer.active) {
+                ctx.beginPath();
+                ctx.arc(observer.x, observer.y, observer.radius, 0, Math.PI*2);
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.45)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([6, 10]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+
+        // --- MANIFESTATION & A4 PRINT ENGINE ---
+        function triggerManifestation() {
+            const bardo = document.getElementById('bardo-overlay');
+            bardo.style.opacity = '1';
+            
+            setTimeout(() => {
+                // Snapshot 1: สุญญตา (Void State)
+                observer.active = false;
+                setTimeout(() => {
+                    const snap1 = canvas.toDataURL("image/png");
+                    document.getElementById('print-hero-img-1').src = snap1;
+                    
+                    // Snapshot 2: อุปาทาน (Tension State)
+                    observer.x = w / 2; observer.y = h / 2; observer.active = true;
+                    nodes.forEach(n => { n.tension = 0.95; });
+                    
+                    setTimeout(() => {
+                        const snap2 = canvas.toDataURL("image/png");
+                        document.getElementById('print-hero-img-2').src = snap2;
+                        observer.active = false;
+                        
+                        // ปริ้นต์ตำรา A4 ออกมาทันที
+                        setTimeout(() => {
+                            window.print();
+                            bardo.style.opacity = '0';
+                        }, 400);
+                    }, 400);
+                }, 300);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
