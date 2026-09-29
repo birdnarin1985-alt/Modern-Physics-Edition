@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>THE QUANTUM GRASP // THE SYNAPTIC WEB</title>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;700&family=JetBrains+Mono:wght@400;700&family=Playfair+Display:ital@1&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --void-bg: #020617; /* Midnight Blue */
+            --cyan-glow: #06b6d4;
+            --red-tension: #ef4444;
+            --glass-bg: rgba(15, 23, 42, 0.6);
+            --glass-border: rgba(6, 182, 212, 0.2);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--void-bg);
+            color: #f8fafc;
+            font-family: 'Sarabun', sans-serif;
+            overflow: hidden; /* Lock viewport */
+            touch-action: none; /* Prevent scroll on mobile */
+        }
+
+        /* --- DIGITAL REALM (SCREEN) --- */
+        #universe-canvas {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            z-index: 1;
+        }
+
+        /* HUD: The Glassmorphism Console */
+        #wisdom-hud {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            margin: 20px;
+            padding: 24px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            transition: all 0.5s ease;
+        }
+
+        @media (min-width: 768px) {
+            #wisdom-hud {
+                flex-direction: row;
+                align-items: center;
+                justify-content: space-between;
+                margin: 40px;
+            }
+        }
+
+        .hud-content { flex: 1; }
+        
+        .state-label {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            color: var(--cyan-glow);
+            margin-bottom: 8px;
+            transition: color 0.3s ease;
+        }
+
+        .dharma-text {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            font-weight: 300;
+            min-height: 3.2em; /* Reserve space */
+        }
+
+        .math-eq {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.2rem;
+            color: #8b5cf6;
+            margin-top: 8px;
+        }
+
+        /* Print Button */
+        .btn-manifest {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid var(--cyan-glow);
+            color: var(--cyan-glow);
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-family: 'Sarabun', sans-serif;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+        .btn-manifest:hover {
+            background: var(--cyan-glow);
+            color: var(--void-bg);
+            box-shadow: 0 0 20px rgba(6, 182, 212, 0.4);
+        }
+
+        /* Bardo State (Transition to Print) */
+        #bardo-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--void-bg);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+        .bardo-text {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--cyan-glow);
+            letter-spacing: 2px;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; text-shadow: 0 0 10px var(--cyan-glow); }
+        }
+
+        /* --- PHYSICAL REALM (PRINT MEDIA) --- */
+        #print-layout { display: none; }
+
+        @media print {
+            @page { size: A4 portrait; margin: 0; }
+            
+            body { 
+                background: #fdfdfc; 
+                color: #1e293b; 
+                overflow: visible;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            
+            #universe-canvas, #wisdom-hud, #bardo-overlay { display: none !important; }
+            
+            #print-layout {
+                display: block;
+                width: 210mm;
+                padding: 20mm;
+                position: relative;
+            }
+
+            .genesis-node {
+                height: 257mm; /* A4 Height - Margins */
+                display: flex;
+                flex-direction: column;
+                page-break-after: always;
+            }
+
+            .print-title {
+                font-size: 32pt;
+                font-weight: 700;
+                margin-bottom: 5mm;
+                letter-spacing: -1px;
+                border-bottom: 2px solid #cbd5e1;
+                padding-bottom: 5mm;
+            }
+
+            .print-snapshot {
+                width: 100%;
+                height: 120mm;
+                object-fit: cover;
+                border-radius: 8px;
+                margin: 10mm 0;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            }
+
+            .mind-map-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 15mm;
+                margin-top: 20mm;
+            }
+
+            .synaptic-block {
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                padding: 8mm;
+                border-radius: 4px;
+                page-break-inside: avoid;
+                position: relative;
+            }
+            .synaptic-block::before {
+                content: '';
+                position: absolute;
+                top: -10mm; left: 20mm;
+                width: 1px; height: 10mm;
+                background: #94a3b8;
+            }
+
+            .block-title {
+                font-size: 14pt;
+                color: #b91c1c; /* Tension Red */
+                margin-bottom: 4mm;
+            }
+            .block-text {
+                font-size: 11pt;
+                line-height: 1.6;
+                text-align: justify;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. The Screen Realm -->
+    <canvas id="universe-canvas"></canvas>
+    
+    <div id="wisdom-hud">
+        <div class="hud-content">
+            <div id="ui-state" class="state-label">STATE: สุญญตา (THE WAVE FUNCTION)</div>
+            <div id="ui-text" class="dharma-text">ตาข่ายแห่งความเป็นไปได้ล่องลอยอย่างอิสระ ไร้การยึดเหนี่ยว ปราศจากศูนย์กลางแห่งตัวตน จิตที่ปล่อยวางย่อมสอดคล้องกับธรรมชาติอันว่างเปล่านี้</div>
+            <div id="ui-math" class="math-eq">Ψ(x,t) = Σ c_n φ_n(x) e^(-iE_nt/ℏ)</div>
+        </div>
+        <button class="btn-manifest" onclick="triggerManifestation()">สกัดสัจธรรมสู่รูปเล่ม</button>
+    </div>
+
+    <!-- 2. The Bardo (Transition) -->
+    <div id="bardo-overlay">
+        <div class="bardo-text">[ กำลังควบแน่นสภาวะธรรมสู่กระดาษ A4... ]</div>
+    </div>
+
+    <!-- 3. The Print Realm (A4) -->
+    <div id="print-layout">
+        <!-- Genesis Node (Cover) -->
+        <div class="genesis-node">
+            <div class="print-title">THE QUANTUM GRASP<br><span style="font-size: 14pt; font-weight: 400; color: #64748b;">ตาข่ายแห่งอิทัปปัจจยตา และฟิสิกส์ของการปล่อยวาง</span></div>
+            <img id="print-hero-img" class="print-snapshot" src="" alt="Quantum Snapshot">
+            <div style="font-family: 'JetBrains Mono'; font-size: 10pt; color: #64748b;">
+                OBSERVER IMPRINT: บันทึกสภาวะจิต ณ เสี้ยววินาทีที่คลื่นยุบตัว
+            </div>
+        </div>
+
+        <!-- Node Constellations -->
+        <div class="mind-map-grid">
+            <div class="synaptic-block">
+                <div class="block-title">01. สุญญตา (The Void Web)</div>
+                <div class="block-text">ก่อนการสังเกตการณ์ สรรพสิ่งเชื่อมโยงกันเป็นตาข่ายแห่งความเป็นไปได้ (Graph Network) ที่สมดุล ไร้น้ำหนักและไร้ความเค้น ในทางธรรมคือสภาวะที่จิตยังไม่เข้าไปยึดเกาะสิ่งใด สายใยประสาททางความคิดจึงโปร่งเบาและไหลลื่น (Cyan State)</div>
+            </div>
+            <div class="synaptic-block" style="margin-top: 20mm;">
+                <div class="block-title">02. ผัสสะและอุปาทาน (The Touch Radius)</div>
+                <div class="block-text">เมื่อนิ้วสัมผัสกาลอวกาศ วงแหวนแห่งอิทธิพล (Field of Influence) จะก่อตัวขึ้น มันดึงดูดโหนดที่อยู่ใกล้เคียงให้ยุบตัวลงสู่อนุภาค เกิดเป็นมวลสารและความหนักอึ้ง สายใยที่เคยผ่อนคลายกลับตึงเครียด แผดเผาเป็นสีแดงชาด (Tension Gradient) นี่คือกลไกของความทุกข์เมื่อเกิดอุปาทาน</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('universe-canvas');
+        const ctx = canvas.getContext('2d');
+        let w, h;
+        
+        // --- DATA ANATOMY: The Synaptic Graph ---
+        const nodes = [];
+        const numNodes = 108; // มงคล 108
+        const connectionDistance = 150; // ระยะเชื่อมโยงตาข่าย
+        
+        // State Awareness
+        let observer = { x: -1000, y: -1000, active: false, radius: 80 /* Field of Influence */ };
+        let globalTension = 0;
+
+        function initCanvas() {
+            w = canvas.width = window.innerWidth * window.devicePixelRatio;
+            h = canvas.height = window.innerHeight * window.devicePixelRatio;
+            canvas.style.width = `${window.innerWidth}px`;
+            canvas.style.height = `${window.innerHeight}px`;
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+            w = window.innerWidth; h = window.innerHeight;
+            
+            // ปรับระยะการเชื่อมต่ออัตโนมัติ (Responsive AABB Layout)
+            observer.radius = w < 768 ? 60 : 100;
+        }
+
+        class NeuralKalapa {
+            constructor() {
+                this.x = Math.random() * w;
+                this.y = Math.random() * h;
+                this.vx = (Math.random() - 0.5) * 1.5;
+                this.vy = (Math.random() - 0.5) * 1.5;
+                this.baseX = this.x; 
+                this.baseY = this.y;
+                this.phase = Math.random() * Math.PI * 2;
+                this.tension = 0; // 0 = Cyan, 1 = Red
+            }
+
+            update(time) {
+                // 1. การหายใจพื้นฐาน (Breathing Sine Wave)
+                if (!observer.active) {
+                    this.x += Math.sin(time * 0.001 + this.phase) * 0.2;
+                    this.y += Math.cos(time * 0.001 + this.phase) * 0.2;
+                    this.tension *= 0.95; // ค่อยๆ คลายความเค้น
+                }
+
+                // 2. สมการวงแหวนผัสสะ (Touch Radius Mechanics)
+                if (observer.active) {
+                    let dx = observer.x - this.x;
+                    let dy = observer.y - this.y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+
+                    if (dist < observer.radius * 2) {
+                        // สปริงดูดเข้าหาวงแหวน (ไม่ดูดเข้าจุดศูนย์กลางตรงๆ เพื่อไม่ให้นิ้วบัง)
+                        let targetDist = observer.radius;
+                        let force = (dist - targetDist) * 0.05; 
+                        this.vx += (dx / dist) * force;
+                        this.vy += (dy / dist) * force;
+                        
+                        // เพิ่มความเค้นเมื่อถูกกระทำ
+                        this.tension = Math.min(1, this.tension + 0.1);
+                    } else {
+                        this.tension *= 0.98;
+                    }
+                }
+
+                // 3. กฎแรงเสียดทานและขอบจักรวาล (Friction & Bounds)
+                this.vx *= 0.92; this.vy *= 0.92;
+                this.x += this.vx; this.y += this.vy;
+
+                // Screen Wrap
+                if (this.x < 0) this.x = w; if (this.x > w) this.x = 0;
+                if (this.y < 0) this.y = h; if (this.y > h) this.y = h;
+            }
+        }
+
+        // Initialize Nodes
+        window.addEventListener('resize', initCanvas);
+        initCanvas();
+        for(let i=0; i<numNodes; i++) nodes.push(new NeuralKalapa());
+
+        // --- INTERACTION ---
+        function setObserver(x, y, active) {
+            observer.x = x; observer.y = y; observer.active = active;
+            
+            // HUD Update
+            const lbl = document.getElementById('ui-state');
+            const txt = document.getElementById('ui-text');
+            const eq = document.getElementById('ui-math');
+            
+            if(active) {
+                lbl.innerText = "STATE: อุปาทาน (THE OBSERVER EFFECT)";
+                lbl.style.color = "var(--red-tension)";
+                txt.innerText = "ศูนย์กลางการยึดเหนี่ยวดึงดูดสรรพสิ่ง บิดเบือนกาลอวกาศและสร้างความตึงเครียด (Tension) ให้กับสายใยประสาท นี่คือแรงโน้มถ่วงแห่งอัตตา";
+                eq.innerText = "T = k(x - x₀) // Hooke's Law of Suffering";
+            } else {
+                lbl.innerText = "STATE: สุญญตา (THE WAVE FUNCTION)";
+                lbl.style.color = "var(--cyan-glow)";
+                txt.innerText = "ตาข่ายแห่งความเป็นไปได้ล่องลอยอย่างอิสระ ไร้การยึดเหนี่ยว ปราศจากศูนย์กลางแห่งตัวตน จิตที่ปล่อยวางย่อมสอดคล้องกับธรรมชาติอันว่างเปล่านี้";
+                eq.innerText = "Ψ(x,t) = Σ c_n φ_n(x) e^(-iE_nt/ℏ)";
+                
+                // กระจายตัวเมื่อปล่อยนิ้ว (Entropy Burst)
+                nodes.forEach(n => {
+                    if(n.tension > 0.5) {
+                        n.vx += (Math.random()-0.5)*15;
+                        n.vy += (Math.random()-0.5)*15;
+                    }
+                });
+            }
+        }
+
+        canvas.addEventListener('pointerdown', (e) => setObserver(e.clientX, e.clientY, true));
+        canvas.addEventListener('pointermove', (e) => { if(observer.active) setObserver(e.clientX, e.clientY, true); });
+        window.addEventListener('pointerup', () => setObserver(-1000, -1000, false));
+
+        // --- THE RENDER LOOP (วงจรสังสารวัฏ) ---
+        function render(time) {
+            ctx.clearRect(0, 0, w, h);
+            
+            // วาดตาข่ายปฏิจจสมุปบาท (The Synaptic Web)
+            for(let i=0; i<numNodes; i++) {
+                nodes[i].update(time);
+                
+                // หาความสัมพันธ์ (O(n^2) กราฟแบบง่ายเพื่อความสวยงาม)
+                for(let j=i+1; j<numNodes; j++) {
+                    let dx = nodes[i].x - nodes[j].x;
+                    let dy = nodes[i].y - nodes[j].y;
+                    let dist = Math.sqrt(dx*dx + dy*dy);
+                    
+                    if(dist < connectionDistance) {
+                        let alpha = 1 - (dist / connectionDistance);
+                        let avgTension = Math.max(nodes[i].tension, nodes[j].tension);
+                        
+                        // สีไล่เฉด: Cyan (0) -> Red (1)
+                        let r = 6 + (233 * avgTension);
+                        let g = 182 - (114 * avgTension);
+                        let b = 212 - (144 * avgTension);
+                        
+                        ctx.beginPath();
+                        ctx.moveTo(nodes[i].x, nodes[i].y);
+                        ctx.lineTo(nodes[j].x, nodes[j].y);
+                        ctx.strokeStyle = `rgba(${r}, ${g}, ${b}, ${alpha * 0.5})`;
+                        ctx.lineWidth = 1 + avgTension * 2;
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // วาดตัวโหนด
+            nodes.forEach(n => {
+                let r = 6 + (233 * n.tension);
+                let g = 182 - (68 * n.tension);
+                let b = 212 - (144 * n.tension);
+                
+                ctx.beginPath();
+                ctx.arc(n.x, n.y, 2 + n.tension * 3, 0, Math.PI*2);
+                ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.8)`;
+                ctx.fill();
+            });
+
+            // วาดวงแหวนผัสสะ (Touch Radius) ถ้ามีการสัมผัส
+            if (observer.active) {
+                ctx.beginPath();
+                ctx.arc(observer.x, observer.y, observer.radius, 0, Math.PI*2);
+                ctx.strokeStyle = 'rgba(239, 68, 68, 0.3)';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 10]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+
+            requestAnimationFrame(render);
+        }
+        requestAnimationFrame(render);
+
+        // --- BARDO & PRINT PROTOCOL (สภาวะเปลี่ยนผ่านสู่ A4) ---
+        function triggerManifestation() {
+            // 1. เข้าสู่อันตรภพ (Show Bardo Loading)
+            const bardo = document.getElementById('bardo-overlay');
+            bardo.style.opacity = '1';
+            
+            // 2. ปล่อยเวลาให้ UI นิ่ง และแอบถ่ายภาพ (Async processing)
+            setTimeout(() => {
+                const snap = canvas.toDataURL("image/png");
+                document.getElementById('print-hero-img').src = snap;
+                
+                // 3. กระตุ้นการพิมพ์
+                setTimeout(() => {
+                    window.print();
+                    // 4. กลับคืนสู่สภาวะปกติเมื่อพิมพ์เสร็จหรือยกเลิก
+                    bardo.style.opacity = '0';
+                }, 500);
+            }, 1000);
+        }
+    </script>
+</body>
+</html>
